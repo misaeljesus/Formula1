@@ -93,6 +93,17 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     privilege = Column(Enum(PrivilegeTypeEnum))
     favorite_bike_id = Column(UUID(as_uuid=True), ForeignKey("bicycles.id"))
+    stars = Column(SmallInteger, default=3, nullable=False, server_default="3")
+
+    # Métodos de estrellas
+    
+    def add_star(self):
+        if self.stars < 5:
+            self.stars += 1
+
+    def remove_star(self):
+        if self.stars > 1:
+            self.stars -= 1
 
     # Relationships
     loans = relationship("Loan", back_populates="user", foreign_keys="Loan.user_id")
@@ -165,8 +176,7 @@ class Loan(Base):
     operator_in_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
     time_in = Column(DateTime(timezone=True))
     duration_min = Column(Integer)
-    status = Column(Enum(LoanStatusEnum), default=LoanStatusEnum.abierto)
-
+  
     # Relationships
     user = relationship("User", back_populates="loans", foreign_keys=[user_id])
     bike = relationship("Bicycle", back_populates="loans")
